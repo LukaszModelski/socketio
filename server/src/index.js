@@ -1,19 +1,48 @@
-const express = require('express');
-const socketio = require('socket.io');
+import express from 'express';
+import { Server } from 'socket.io';
+import cors from 'cors';
 
 const app = express();
-const port = 3000;
 
+const serverConfig = {
+  port: process.env.PORT || 3000
+}
+
+const ioServerConfig = {
+  cors: {
+    origin: '*'
+  }
+}
+
+let users = [];
+
+app.use(cors());
 app.get('/', (req, res) => {
-  res.send('helllllo');
+  res.send('helllllo2');
 });
 
-const server = app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+// express server
+const server = app.listen(serverConfig.port, () => {
+  console.log(`Server listening on port ${serverConfig.port}`);
 });
 
-const io = socketio(server);
+//socker.io server
+const ioServer = new Server(server, ioServerConfig);
 
-io.on("connection", function (socket) {
-  console.log("Made socket connection");
+ioServer.on("connection", (socket) => {
+  ioServer.emit('users', users);
+
+  socket.on('new user', newUser => {
+    socket.userName = newUser;
+    users.push(newUser);
+    ioServer.emit('users', users);
+  });
+
+  socket.on("disconnect", () => {
+    if (socket.userName) {
+      users = users.filter(user => user !== socket.userName);
+      console.log(`User "${socket.userName}" disconected.`);
+      ioServer.emit('users', users);
+    }
+  });
 });
