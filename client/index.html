@@ -5,9 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <input class="nameInput" type="text" placeholder="name">
-  <button class="submitNameBtn" type="submit">Ok</button>
-  <p>USERS:</p>
-  <div class="chatWindow"></div>
+  <div class="container">
+    <div class="column">
+      <form class="newUserForm" action="/">
+        <input class="newUserForm__nameInput" type="text" placeholder="chat name">
+        <button class="newUserForm__submitBtn" type="submit">Ok</button>
+      </form>
+      <p>USERS:</p>
+      <ul class="usersList"></ul>
+    </div>
+    <div class="column chatColumn">
+      <div class="chatWindow"></div>
+      <form class="messageForm" id="messageForm">
+        <input
+          disabled
+          type=text
+          class="messageForm__msgInput"
+          placeholder="Enter message here..."
+        >
+        <button disabled class="messageForm__submitBtn" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

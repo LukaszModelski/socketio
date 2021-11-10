@@ -14,12 +14,11 @@ const ioServerConfig = {
   }
 }
 
+const MAX_MESSAGES = 50;
 let users = [];
+let messages = [];
 
 app.use(cors());
-app.get('/', (req, res) => {
-  res.send('helllllo2');
-});
 
 // express server
 const server = app.listen(serverConfig.port, () => {
@@ -30,12 +29,23 @@ const server = app.listen(serverConfig.port, () => {
 const ioServer = new Server(server, ioServerConfig);
 
 ioServer.on("connection", (socket) => {
-  ioServer.emit('users', users);
+  socket.emit('users', users);
+  socket.emit('messages', messages);
 
   socket.on('new user', newUser => {
+    console.log(`New user: "${newUser}"`);
     socket.userName = newUser;
     users.push(newUser);
     ioServer.emit('users', users);
+  });
+
+  socket.on('new message', data => {
+    console.log(`New message from user ${data.user}: "${data.message}"`);
+    if (messages.length >= MAX_MESSAGES) {
+      messages.shift();
+    }
+    messages.push({user: data.user, message: data.message});
+    ioServer.emit('messages', messages);
   });
 
   socket.on("disconnect", () => {
